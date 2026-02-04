@@ -1,0 +1,32 @@
+{
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "linear-auth",
+      "description": "Linear Authorization header (example: Bearer <token>)",
+      "password": true
+    }
+  ],
+  "servers": {
+    "linear": {
+      "type": "http",
+      "url": "https://mcp.linear.app/mcp",
+      "headers": {
+        "Authorization": "${input:linear-auth}"
+      }
+    },
+    "notion": {
+      "type": "http",
+      "url": "https://mcp.notion.com/mcp"
+    },
+    "terraform": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "hashicorp/terraform-mcp-server"
+      ]
+    },
+  }
+}
