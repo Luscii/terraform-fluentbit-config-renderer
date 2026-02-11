@@ -3,56 +3,42 @@
 ## Minimal Usage (Classic Format)
 
 ```hcl
-module "label" {
-  source  = "cloudposse/label/null"
-  version = "0.25.0"
-
-  namespace   = "luscii"
-  environment = "production"
-  name        = "fluentbit"
-}
-
 module "fluentbit_config" {
   source = "github.com/Luscii/terraform-fluentbit-config-renderer"
 
-  name    = module.label.name
-  context = module.label.context
-
-  service = [
-    {
-      properties = [
-        ["Flush", "5"],
-        ["Log_Level", "info"],
-        ["HTTP_Server", "On"],
-        ["HTTP_Listen", "0.0.0.0"],
-        ["HTTP_Port", "2020"]
-      ]
+  service = {
+    flush     = "5"
+    log_level = "info"
+    extra_properties = {
+      HTTP_Server = "On"
+      HTTP_Listen = "0.0.0.0"
+      HTTP_Port   = "2020"
     }
-  ]
+  }
 
   inputs = [
     {
-      properties = [
-        ["Name", "tail"],
-        ["Tag", "app.logs"],
-        ["Path", "/var/log/containers/*.log"],
-        ["Parser", "docker"],
-        ["DB", "/var/log/flb.db"],
-        ["Mem_Buf_Limit", "5MB"]
-      ]
+      name = "tail"
+      tag  = "app.logs"
+      extra_properties = {
+        Path          = "/var/log/containers/*.log"
+        Parser        = "docker"
+        DB            = "/var/log/flb.db"
+        Mem_Buf_Limit = "5MB"
+      }
     }
   ]
 
-  outputs = [
+  outputs_ = [
     {
-      properties = [
-        ["Name", "cloudwatch_logs"],
-        ["Match", "app.*"],
-        ["region", "eu-west-1"],
-        ["log_group_name", "/ecs/my-app"],
-        ["log_stream_prefix", "container/"],
-        ["auto_create_group", "true"]
-      ]
+      name  = "cloudwatch_logs"
+      match = "app.*"
+      extra_properties = {
+        region            = "eu-west-1"
+        log_group_name    = "/ecs/my-app"
+        log_stream_prefix = "container/"
+        auto_create_group = "true"
+      }
     }
   ]
 }
@@ -133,26 +119,46 @@ pipeline:
 module "fluentbit_config" {
   source = "github.com/Luscii/terraform-fluentbit-config-renderer"
 
-  name    = module.label.name
-  context = module.label.context
-
   parsers = [
     {
-      properties = [
-        ["Name", "docker"],
-        ["Format", "json"],
-        ["Time_Key", "time"],
-        ["Time_Format", "%Y-%m-%dT%H:%M:%S.%L%z"],
-        ["Time_Keep", "Off"]
-      ]
+      name        = "docker"
+      format      = "json"
+      time_key    = "time"
+      time_format = "%Y-%m-%dT%H:%M:%S.%L%z"
+      time_keep   = false
     },
     {
-      properties = [
-        ["Name", "apache"],
-        ["Format", "regex"],
-        ["Regex", "^(?<host>[^ ]*) [^ ]* (?<user>[^ ]*) \\[(?<time>[^\\]]*)\\]"],
-        ["Time_Key", "time"],
-        ["Time_Format", "%d/%b/%Y:%H:%M:%S %z"]
+      name   = "apache"
+      format = "regex"
+      regex  = "^(?<host>[^ ]*) [^ ]* (?<user>[^ ]*) \\[(?<time>[^\\]]*)\\]"
+      time_key    = "time"
+      time_format = "%d/%b/%Y:%H:%M:%S %z"
+    }
+  ]
+}
+```
+
+## With Multiline Parser
+
+```hcl
+module "fluentbit_config" {
+  source = "github.com/Luscii/terraform-fluentbit-config-renderer"
+
+  multiline_parsers = [
+    {
+      name = "multiline-java"
+      type = "regex"
+      rules = [
+        {
+          state      = "start_state"
+          regex      = "/^\\d{4}-\\d{2}-\\d{2}/"
+          next_state = "cont"
+        },
+        {
+          state      = "cont"
+          regex      = "/^\\s/"
+          next_state = "cont"
+        }
       ]
     }
   ]

@@ -13,6 +13,12 @@
 - Q: Support CUSTOM section type? → A: No, excluded for now (YAGNI). Can be added later.
 - Q: Key alignment scope in classic format? → A: Per-section (each section aligns to its own longest key).
 - Q: Keep context/name variables? → A: No, only Fluent Bit section variables.
+- Q: Should variables use freeform list(list(string)) or typed objects?
+  → A: Typed objects with named attributes for common engine-level
+  properties (name, tag, match, log_level, etc.) plus an
+  extra_properties map(string) escape hatch for plugin-specific
+  settings. This follows Constitution Principle V (Self-Documenting
+  Variables).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -124,7 +130,9 @@ asserting each section renders correctly and independently.
   the value exactly as provided, without escaping or quoting.
 - What happens when duplicate keys exist within a section (valid in
   Fluent Bit, e.g., multiple `rule` entries in MULTILINE_PARSER)?
-  The module MUST render each key-value pair on its own line.
+  The module MUST render each entry on its own line.
+  MULTILINE_PARSER rules are modeled as a typed list of objects
+  (state, regex, next_state) rather than freeform duplicate keys.
 
 ## Requirements *(mandatory)*
 
@@ -132,7 +140,10 @@ asserting each section renders correctly and independently.
 
 - **FR-001**: Module MUST accept structured input variables
   representing Fluent Bit configuration sections (SERVICE, INPUT,
-  FILTER, OUTPUT, PARSER, MULTILINE_PARSER).
+  FILTER, OUTPUT, PARSER, MULTILINE_PARSER). Variables MUST use
+  typed objects with named attributes for common engine-level
+  properties (e.g., name, tag, match, log_level) and an
+  `extra_properties` map for plugin-specific settings.
 - **FR-002**: Module MUST render output in Fluent Bit classic
   INI-style format: section headers in `[BRACKETS]`, properties
   indented with 4 spaces, key-value pairs separated by spaces.
@@ -166,6 +177,14 @@ asserting each section renders correctly and independently.
   integration. This is a pure rendering module with no cloud
   resources to name or tag. The module accepts only Fluent Bit
   section variables (no `context` or `name` variables).
+- **FR-010**: Module MUST provide self-documenting variables per
+  Constitution Principle V. Each section variable MUST use typed
+  objects with named attributes for common Fluent Bit engine
+  properties. Enum-like fields (log_level, parser format,
+  multiline parser type) MUST have validation blocks. An
+  `extra_properties` map(string) MUST be available on every
+  section variable for plugin-specific settings not covered by
+  typed attributes.
 
 ### Key Entities
 

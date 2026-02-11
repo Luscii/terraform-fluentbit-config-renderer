@@ -7,12 +7,14 @@
 
 Terraform module that accepts Fluent Bit configuration sections
 (SERVICE, INPUT, FILTER, OUTPUT, PARSER, MULTILINE_PARSER) as
-structured variables (lists of objects with key-value tuple
-properties), normalizes them into a single canonical local, and
-renders both classic INI-style and YAML configuration outputs. The
-classic format uses `templatefile()` for readability. Input
-validation ensures structural correctness (e.g., at most one SERVICE
-section). Designed for use with AWS for Fluent Bit init process but
+**self-documenting typed variables** with named attributes for
+common engine-level properties and `extra_properties` maps for
+plugin-specific settings. Typed attributes are normalized into a
+single canonical local, then rendered to both classic INI-style
+and YAML configuration outputs. The classic format uses
+`templatefile()` for readability. Validation blocks enforce enum
+constraints (log_level, parser format, multiline parser type).
+Designed for use with AWS for Fluent Bit init process but
 generates config files only — S3 storage is out of scope.
 
 ## Technical Context
@@ -56,12 +58,30 @@ types without plan-time issues.
 - **Gate**: `pre-commit run --all-files` must pass after each
   implementation phase.
 
+### Principle IV: Examples
+
+- **PASS**: Examples in `examples/basic/` and `examples/complete/`
+  demonstrate real usage patterns. Examples are the last step
+  before documentation in the implementation workflow.
+- **Gate**: Examples must be valid standalone Terraform configs.
+
+### Principle V: Self-Documenting Variables
+
+- **PASS**: All section variables use typed objects with named
+  attributes for common engine-level properties. `extra_properties`
+  map(string) available for plugin-specific settings. Validation
+  blocks enforce enum constraints (log_level, format, type).
+- **Gate**: No `list(list(string))` freeform structures. All
+  variables have descriptive `description` attributes.
+
 ### Post-Design Re-check
 
 - **Principle I**: PASS — Test plan covers all user stories.
 - **Principle II**: PASS — 1 project, no nested modules, no
   unnecessary abstractions.
 - **Principle III**: PASS — Validation toolchain unchanged.
+- **Principle IV**: PASS — Examples in basic/ and complete/.
+- **Principle V**: PASS — Typed objects with named attributes.
 
 ## Project Structure
 

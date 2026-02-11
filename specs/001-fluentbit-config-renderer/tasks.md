@@ -24,12 +24,12 @@
 
 **Purpose**: Project structure and variable definitions
 
-- [ ] T001 Remove existing placeholder main.tf, variables.tf, outputs.tf content and replace with empty shells per plan structure
-- [ ] T002 Create versions.tf with `terraform { required_version = ">= 1.3" }` (no required_providers block — pure rendering module)
-- [ ] T003 Create templates/ directory with empty classic.tftpl file at templates/classic.tftpl
-- [ ] T004 Define all input variables in variables.tf: service, inputs, filters, outputs_, parsers, multiline_parsers (each as `list(object({ properties = list(list(string)) }))` with default `[]`)
-- [ ] T005 Add validation block to service variable in variables.tf: `length(var.service) <= 1`
-- [ ] T006 Define outputs in outputs.tf: classic_config and yaml_config (initially empty string values)
+- [x] T001 Remove existing placeholder main.tf, variables.tf, outputs.tf content and replace with empty shells per plan structure
+- [x] T002 Create versions.tf with `terraform { required_version = ">= 1.3" }` (no required_providers block — pure rendering module)
+- [x] T003 Create templates/ directory with empty classic.tftpl file at templates/classic.tftpl
+- [x] T004 Define all input variables in variables.tf: service, inputs, filters, outputs_, parsers, multiline_parsers (each as `list(object({ properties = list(list(string)) }))` with default `[]`)
+- [x] T005 Add validation block to service variable in variables.tf: `length(var.service) <= 1`
+- [x] T006 Define outputs in outputs.tf: classic_config and yaml_config (initially empty string values)
 
 **Checkpoint**: Module structure exists, `terraform init && terraform validate` passes with all variables defaulting to empty.
 
@@ -41,11 +41,11 @@
 
 **CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T007 Write test for canonical sections local in tests/basic.tftest.hcl: given service, inputs, filters, outputs_, parsers, multiline_parsers variables, assert local.sections produces a flat list of objects with `type` and `properties` fields in canonical order (SERVICE, INPUT, FILTER, OUTPUT, PARSER, MULTILINE_PARSER)
-- [ ] T008 Confirm T007 test FAILS (Red phase)
-- [ ] T009 Implement canonical sections local in locals.tf: build `local.sections` as a flat ordered list from all input variables, each entry tagged with its section type string
-- [ ] T010 Run `terraform test tests/basic.tftest.hcl` to confirm T007 passes (Green phase)
-- [ ] T011 Run `pre-commit run --all-files` to validate and format
+- [x] T007 Write test for canonical sections local in tests/basic.tftest.hcl: given service, inputs, filters, outputs_, parsers, multiline_parsers variables, assert local.sections produces a flat list of objects with `type` and `properties` fields in canonical order (SERVICE, INPUT, FILTER, OUTPUT, PARSER, MULTILINE_PARSER)
+- [x] T008 Confirm T007 test FAILS (Red phase)
+- [x] T009 Implement canonical sections local in locals.tf: build `local.sections` as a flat ordered list from all input variables, each entry tagged with its section type string
+- [x] T010 Run `terraform test tests/basic.tftest.hcl` to confirm T007 passes (Green phase)
+- [x] T011 Run `pre-commit run --all-files` to validate and format
 
 **Checkpoint**: `local.sections` produces correct canonical ordering. All downstream rendering consumes this single local.
 
@@ -61,20 +61,20 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T012 [P] [US1] Write classic format rendering tests in tests/basic.tftest.hcl: assert classic_config output contains `[SERVICE]` block with indented key-value pairs when service variable provided; assert `[INPUT]` and `[OUTPUT]` blocks render correctly; assert empty input produces empty string; assert per-section key alignment
-- [ ] T013 [P] [US1] Write YAML format rendering tests in tests/basic.tftest.hcl: assert yaml_config output contains `service:` mapping, `pipeline:` with `inputs:` and `outputs:` lists when variables provided; assert empty input produces empty string
-- [ ] T014 [P] [US1] Write omission tests in tests/basic.tftest.hcl: assert no `[SERVICE]` header when service is empty; assert no `pipeline.filters` key in YAML when filters is empty
-- [ ] T015 [P] [US1] Write ordering test in tests/basic.tftest.hcl: assert multiple OUTPUT sections render in input order in classic_config
-- [ ] T016 [US1] Confirm T012-T015 tests FAIL (Red phase)
+- [x] T012 [P] [US1] Write classic format rendering tests in tests/basic.tftest.hcl: assert classic_config output contains `[SERVICE]` block with indented key-value pairs when service variable provided; assert `[INPUT]` and `[OUTPUT]` blocks render correctly; assert empty input produces empty string; assert per-section key alignment
+- [x] T013 [P] [US1] Write YAML format rendering tests in tests/basic.tftest.hcl: assert yaml_config output contains `service:` mapping, `pipeline:` with `inputs:` and `outputs:` lists when variables provided; assert empty input produces empty string
+- [x] T014 [P] [US1] Write omission tests in tests/basic.tftest.hcl: assert no `[SERVICE]` header when service is empty; assert no `pipeline.filters` key in YAML when filters is empty
+- [x] T015 [P] [US1] Write ordering test in tests/basic.tftest.hcl: assert multiple OUTPUT sections render in input order in classic_config
+- [x] T016 [US1] Confirm T012-T015 tests FAIL (Red phase)
 
 ### Implementation for User Story 1
 
-- [ ] T017 [US1] Create classic format template at templates/classic.tftpl: iterate over sections list, render `[TYPE]` header, indent each property key-value pair with 4 spaces, align keys per-section to longest key width, separate sections with blank line
-- [ ] T018 [US1] Implement classic_config rendering in locals.tf: use `templatefile("${path.module}/templates/classic.tftpl", { sections = local.sections })` to produce `local.classic_config`
-- [ ] T019 [US1] Implement yaml_config rendering in locals.tf: transform `local.sections` into Fluent Bit YAML schema structure (`service` map, `pipeline.inputs`/`filters`/`outputs` lists) and render via `yamlencode()`; store as `local.yaml_config`
-- [ ] T020 [US1] Wire outputs in outputs.tf: set classic_config value to `local.classic_config`, yaml_config to `local.yaml_config`
-- [ ] T021 [US1] Run `terraform test tests/basic.tftest.hcl` to confirm T012-T015 pass (Green phase)
-- [ ] T022 [US1] Run `pre-commit run --all-files` to validate and format
+- [x] T017 [US1] Create classic format template at templates/classic.tftpl: iterate over sections list, render `[TYPE]` header, indent each property key-value pair with 4 spaces, align keys per-section to longest key width, separate sections with blank line
+- [x] T018 [US1] Implement classic_config rendering in locals.tf: use `templatefile("${path.module}/templates/classic.tftpl", { sections = local.sections })` to produce `local.classic_config`
+- [x] T019 [US1] Implement yaml_config rendering in locals.tf: transform `local.sections` into Fluent Bit YAML schema structure (`service` map, `pipeline.inputs`/`filters`/`outputs` lists) and render via `yamlencode()`; store as `local.yaml_config`
+- [x] T020 [US1] Wire outputs in outputs.tf: set classic_config value to `local.classic_config`, yaml_config to `local.yaml_config`
+- [x] T021 [US1] Run `terraform test tests/basic.tftest.hcl` to confirm T012-T015 pass (Green phase)
+- [x] T022 [US1] Run `pre-commit run --all-files` to validate and format
 
 **Checkpoint**: Basic rendering works for SERVICE, INPUT, FILTER, OUTPUT in both classic and YAML formats. Module is independently usable.
 
@@ -132,11 +132,30 @@
 
 ---
 
+## Phase 5a: Variable Redesign (Constitution Principle V)
+
+**Purpose**: Replace freeform `list(list(string))` properties with self-documenting typed objects per Constitution Principle V. This is a cross-cutting refactor that touches variables, locals, tests, and examples.
+
+**CRITICAL**: This phase MUST be completed before continuing with remaining user story phases. The variable interface change affects all downstream code.
+
+- [ ] T049 Write tests for typed variable interface in tests/basic.tftest.hcl: update all existing test run blocks to use new typed object syntax (name, tag, match, extra_properties) instead of properties = list(list(string)); add test asserting extra_properties are rendered correctly
+- [ ] T050 Write tests for typed parser variables in tests/parsers.tftest.hcl: update all test run blocks to use new typed object syntax (name, format, regex, time_key, rules); add test asserting multiline_parser rules (typed list of {state, regex, next_state}) render correctly as duplicate `rule` entries in classic format
+- [ ] T051 Confirm T049-T050 tests FAIL (Red phase)
+- [ ] T052 Rewrite variables.tf: replace all `list(object({ properties = list(list(string)) }))` types with typed objects per contracts/terraform-interface.md; service becomes `optional(object({...}))` with default null; inputs/filters/outputs_/parsers/multiline_parsers use typed objects with named attributes + extra_properties; add validation blocks for log_level, parser format, multiline_parser type
+- [ ] T053 Rewrite locals.tf normalization: update `local.sections` builder to convert typed object attributes + extra_properties into the canonical `[key, value]` tuples format; SERVICE: convert typed attrs to properties list; INPUT/FILTER/OUTPUT: convert name, tag/match, optional attrs, then append extra_properties; PARSER: convert name, format, optional attrs, then extra_properties; MULTILINE_PARSER: convert name, type, optional attrs, expand rules list into duplicate `rule` entries, then extra_properties
+- [ ] T054 Update examples/basic/main.tf and examples/complete/main.tf to use new typed variable syntax
+- [ ] T055 Run `terraform test` to confirm all tests pass (Green phase)
+- [ ] T056 Run `pre-commit run --all-files` to validate and format
+
+**Checkpoint**: All variables use typed objects. All existing tests pass with new syntax. Rendering output is identical.
+
+---
+
 ## Phase 6: Validation Tests
 
 **Purpose**: Input validation edge cases
 
-- [ ] T039 [P] Write validation tests in tests/validation.tftest.hcl: assert service variable rejects lists with more than 1 entry (expect_failures); assert empty properties list renders section header only; assert special characters in property values pass through unescaped
+- [ ] T039 [P] Write validation tests in tests/validation.tftest.hcl: assert service log_level validation rejects invalid values (expect_failures); assert parser format validation rejects invalid values; assert multiline_parser type validation rejects invalid values; assert empty inputs produce empty config; assert extra_properties values pass through unescaped
 - [ ] T040 Confirm T039 tests FAIL (Red phase)
 - [ ] T041 Fix any validation issues discovered (if needed) in variables.tf or locals.tf
 - [ ] T042 Run `terraform test tests/validation.tftest.hcl` to confirm T039 passes (Green phase)
@@ -167,8 +186,9 @@
 - **User Story 1 (Phase 3)**: Depends on Phase 2
 - **User Story 2 (Phase 4)**: Depends on Phase 2 (can run parallel to Phase 3)
 - **User Story 3 (Phase 5)**: Depends on Phase 2 (can run parallel to Phase 3/4)
-- **Validation (Phase 6)**: Depends on Phase 3 (needs rendering logic)
-- **Polish (Phase 7)**: Depends on all user story phases
+- **Variable Redesign (Phase 5a)**: Depends on Phase 3 (needs working rendering) — BLOCKS remaining phases
+- **Validation (Phase 6)**: Depends on Phase 5a (needs typed variables for validation tests)
+- **Polish (Phase 7)**: Depends on all user story phases + Phase 5a
 
 ### Within Each User Story
 
@@ -214,5 +234,8 @@
 - [Story] label maps task to specific user story for traceability
 - Constitution Principle I requires TDD: tests MUST fail before implementation
 - Constitution Principle III requires pre-commit validation after each phase
+- Constitution Principle V requires typed objects with named attributes for all variables
 - US3 tests may already pass if generic rendering handles multiple sections — this is expected and acceptable
 - The `outputs_` variable uses trailing underscore to avoid Terraform reserved word collision
+- Phase 5a (Variable Redesign) is a refactor phase: rendering output MUST be identical before and after the change. The canonical `local.sections` format (list of {type, properties}) is unchanged; only the variable-to-canonical normalization changes
+- MULTILINE_PARSER `rules` are typed as `list(object({state, regex, next_state}))` to handle duplicate `rule` keys in a type-safe way
