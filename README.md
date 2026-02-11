@@ -167,9 +167,7 @@ No providers.
 
 ### Modules
 
-| Name | Source | Version |
-|------|--------|---------|
-| <a name="module_label"></a> [label](#module\_label) | cloudposse/label/null | 0.25.0 |
+No modules.
 
 ### Resources
 
@@ -179,12 +177,17 @@ No resources.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_context"></a> [context](#input\_context) | Single object for setting entire context at once.<br/>See description of individual variables for details.<br/>Leave string and numeric variables as `null` to use default value.<br/>Individual variable settings (non-null) override settings in context object,<br/>except for attributes, tags, and additional\_tag\_map, which are merged. | `any` | <pre>{<br/>  "additional_tag_map": {},<br/>  "attributes": [],<br/>  "delimiter": null,<br/>  "descriptor_formats": {},<br/>  "enabled": true,<br/>  "environment": null,<br/>  "id_length_limit": null,<br/>  "label_key_case": null,<br/>  "label_order": [],<br/>  "label_value_case": null,<br/>  "labels_as_tags": [<br/>    "unset"<br/>  ],<br/>  "name": null,<br/>  "namespace": null,<br/>  "regex_replace_chars": null,<br/>  "stage": null,<br/>  "tags": {},<br/>  "tenant": null<br/>}</pre> | no |
-| <a name="input_name"></a> [name](#input\_name) | Name of the resource to be labeled. This is used to generate the label key and value. | `string` | n/a | yes |
+| <a name="input_filters"></a> [filters](#input\_filters) | List of FILTER sections. | <pre>list(object({<br/>    properties = list(list(string))<br/>  }))</pre> | `[]` | no |
+| <a name="input_inputs"></a> [inputs](#input\_inputs) | List of INPUT sections. | <pre>list(object({<br/>    properties = list(list(string))<br/>  }))</pre> | `[]` | no |
+| <a name="input_multiline_parsers"></a> [multiline\_parsers](#input\_multiline\_parsers) | List of MULTILINE\_PARSER sections. | <pre>list(object({<br/>    properties = list(list(string))<br/>  }))</pre> | `[]` | no |
+| <a name="input_outputs_"></a> [outputs\_](#input\_outputs\_) | List of OUTPUT sections. | <pre>list(object({<br/>    properties = list(list(string))<br/>  }))</pre> | `[]` | no |
+| <a name="input_parsers"></a> [parsers](#input\_parsers) | List of PARSER sections. | <pre>list(object({<br/>    properties = list(list(string))<br/>  }))</pre> | `[]` | no |
+| <a name="input_service"></a> [service](#input\_service) | SERVICE section. At most one entry. | <pre>list(object({<br/>    properties = list(list(string))<br/>  }))</pre> | `[]` | no |
 
 ### Outputs
 
 | Name | Description |
 |------|-------------|
-| <a name="output_label_context"></a> [label\_context](#output\_label\_context) | Context of the label for subsequent use |
+| <a name="output_classic_config"></a> [classic\_config](#output\_classic\_config) | Rendered Fluent Bit configuration in classic INI-style format. |
+| <a name="output_yaml_config"></a> [yaml\_config](#output\_yaml\_config) | Rendered Fluent Bit configuration in YAML format. |
 <!-- END_TF_DOCS -->

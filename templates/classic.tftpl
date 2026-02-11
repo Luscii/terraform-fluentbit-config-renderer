@@ -1,0 +1,9 @@
+%{~ for i, section in sections ~}
+[${section.type}]
+%{~ for prop in section.properties }
+    ${prop[0]}%{~ for s in range(max_key_widths[i] - length(prop[0]) + 1) ~}${" "}%{~ endfor ~}${prop[1]}
+%{~ endfor ~}
+%{~ if i < length(sections) - 1 }
+
+%{~ endif ~}
+%{~ endfor ~}
