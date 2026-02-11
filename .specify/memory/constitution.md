@@ -1,25 +1,20 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: N/A -> 1.0.0 (initial ratification)
-
-Added principles:
-  - I. Test-First Imperative
-  - II. Simplicity and Anti-Abstraction
-  - III. Validate and Format
+Version change: 1.0.1 -> 1.1.0 (minor)
 
 Added sections:
-  - Core Principles (3 principles)
-  - Technology Constraints
-  - Development Workflow
-  - Governance
+  - Core Principles: Added Principle IV (Examples). Modules MUST
+    include working examples in examples/ directory. Examples are
+    the last implementation step before documentation and polish.
 
-Removed sections: N/A (initial version)
+Modified sections: None
+Removed sections: None
 
 Templates requiring updates:
   - .specify/templates/plan-template.md ........... OK (no changes needed)
   - .specify/templates/spec-template.md ........... OK (no changes needed)
-  - .specify/templates/tasks-template.md .......... OK (no changes needed)
+  - .specify/templates/tasks-template.md .......... OK (examples already in Polish phase)
   - .specify/templates/checklist-template.md ...... OK (no changes needed)
   - .specify/templates/agent-file-template.md ..... OK (no changes needed)
 
@@ -84,11 +79,35 @@ through pre-commit hooks and MUST be executed:
 prevent drift, reduce review friction, and catch errors before they
 reach shared branches.
 
+### IV. Examples
+
+All modules MUST include working examples in the `examples/`
+directory that demonstrate real usage patterns.
+
+- At minimum, a **basic** example showing the simplest viable usage
+  and a **complete** example covering all supported features.
+- Examples MUST be valid Terraform configurations that can be
+  applied standalone (`terraform init && terraform apply`).
+- Examples are the **last implementation step** within the
+  development flow, written after all functional code and tests
+  pass. They are completed before documentation generation and
+  final polish.
+- Examples serve as the primary usage documentation for module
+  consumers and MUST be kept in sync with the module interface.
+
+**Rationale**: Infrastructure modules are consumed by other
+engineers who need concrete, runnable demonstrations of how to use
+the module. Examples bridge the gap between variable definitions
+and real-world usage patterns, reducing onboarding time and
+support burden.
+
 ## Technology Constraints
 
 - **Language**: HCL (Terraform >= 1.3)
-- **Naming/Tagging**: CloudPosse label module (v0.25.0) is required
-  for all resource naming and tagging.
+- **Naming/Tagging**: CloudPosse label module (v0.25.0) is the
+  default convention for modules that manage cloud resources.
+  Pure rendering or utility modules without cloud resources MAY
+  omit the label module.
 - **Testing**: Terraform native tests (`.tftest.hcl`) with mock
   providers for unit tests and real providers for integration tests.
 - **Documentation**: terraform-docs for automated README generation.
@@ -118,4 +137,4 @@ reach shared branches.
 - All code reviews and PR approvals MUST verify compliance with
   the principles defined in this constitution.
 
-**Version**: 1.0.0 | **Ratified**: 2026-02-11 | **Last Amended**: 2026-02-11
+**Version**: 1.1.0 | **Ratified**: 2026-02-11 | **Last Amended**: 2026-02-11
