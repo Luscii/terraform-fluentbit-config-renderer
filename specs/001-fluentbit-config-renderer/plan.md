@@ -74,6 +74,16 @@ types without plan-time issues.
 - **Gate**: No `list(list(string))` freeform structures. All
   variables have descriptive `description` attributes.
 
+### Principle VI: Runtime Configuration Validation
+
+- **PASS**: Rendered classic and YAML outputs will be validated
+  against the Fluent Bit binary via Docker (`--dry-run`) to
+  confirm syntactic correctness beyond Terraform static checks.
+- **Gate**: Both `classic_config` and `yaml_config` outputs MUST
+  pass Fluent Bit's built-in validation before the build is
+  considered passing. Validation runs via
+  `docker run fluent/fluent-bit:latest --dry-run`.
+
 ### Post-Design Re-check
 
 - **Principle I**: PASS — Test plan covers all user stories.
@@ -82,6 +92,7 @@ types without plan-time issues.
 - **Principle III**: PASS — Validation toolchain unchanged.
 - **Principle IV**: PASS — Examples in basic/ and complete/.
 - **Principle V**: PASS — Typed objects with named attributes.
+- **Principle VI**: PASS — Runtime validation phase added to tasks.
 
 ## Project Structure
 

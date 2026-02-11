@@ -165,6 +165,22 @@
 
 ---
 
+## Phase 6b: Runtime Configuration Validation (Constitution Principle VI)
+
+**Purpose**: Validate rendered configuration outputs against the Fluent Bit binary via Docker to confirm syntactic correctness beyond Terraform static checks.
+
+- [ ] T057 [P] Write a helper script at `scripts/validate-config.sh` that accepts a config file path and format (classic or yaml), writes it to a temp file, runs `docker run --rm -v <path>:/fluent-bit/etc/fluent-bit.conf:ro fluent/fluent-bit:latest /fluent-bit/bin/fluent-bit -c /fluent-bit/etc/fluent-bit.conf --dry-run`, and reports pass/fail with exit code
+- [ ] T058 [P] Write runtime validation tests in tests/runtime.tftest.hcl: use `terraform_data` with `local-exec` provisioner to write `classic_config` output to a temp file and run the Docker validation command; assert exit code 0. If `terraform_data` + `local-exec` is not feasible within `.tftest.hcl`, document the limitation and fall back to T059
+- [ ] T059 As fallback (if T058 is not feasible): add a `validate` target or script that runs `terraform output -raw classic_config | docker run --rm -i fluent/fluent-bit:latest /fluent-bit/bin/fluent-bit -c /dev/stdin --dry-run` and the equivalent for `yaml_config`; integrate into CI/CD pipeline or pre-commit hook
+- [ ] T060 Validate classic_config output against Fluent Bit binary: run the validation command with a representative config (basic example) and confirm exit code 0
+- [ ] T061 Validate yaml_config output against Fluent Bit binary: run the validation command with a representative config (basic example) and confirm exit code 0
+- [ ] T062 Run `terraform test` to confirm all existing tests still pass (no regressions)
+- [ ] T063 Run `pre-commit run --all-files` to validate and format
+
+**Checkpoint**: Both classic and YAML rendered outputs are validated against the Fluent Bit binary. Invalid configs cannot pass the build.
+
+---
+
 ## Phase 7: Polish & Cross-Cutting Concerns
 
 **Purpose**: Examples, documentation, final validation
@@ -188,7 +204,8 @@
 - **User Story 3 (Phase 5)**: Depends on Phase 2 (can run parallel to Phase 3/4)
 - **Variable Redesign (Phase 5a)**: Depends on Phase 3 (needs working rendering) — BLOCKS remaining phases
 - **Validation (Phase 6)**: Depends on Phase 5a (needs typed variables for validation tests)
-- **Polish (Phase 7)**: Depends on all user story phases + Phase 5a
+- **Runtime Validation (Phase 6b)**: Depends on Phase 6 (needs working rendering + typed variables); requires Docker available locally or in CI
+- **Polish (Phase 7)**: Depends on all user story phases + Phase 5a + Phase 6b
 
 ### Within Each User Story
 
@@ -224,7 +241,9 @@
 2. User Story 1 -> Basic rendering (MVP!)
 3. User Story 2 -> Parser support
 4. User Story 3 -> Multi-source routing validation
-5. Validation + Polish -> Production ready
+5. Variable Redesign -> Typed interface
+6. Validation + Runtime Validation -> Verified configs
+7. Polish -> Production ready
 
 ---
 
@@ -239,3 +258,6 @@
 - The `outputs_` variable uses trailing underscore to avoid Terraform reserved word collision
 - Phase 5a (Variable Redesign) is a refactor phase: rendering output MUST be identical before and after the change. The canonical `local.sections` format (list of {type, properties}) is unchanged; only the variable-to-canonical normalization changes
 - MULTILINE_PARSER `rules` are typed as `list(object({state, regex, next_state}))` to handle duplicate `rule` keys in a type-safe way
+- Constitution Principle VI requires runtime validation of rendered configs against the Fluent Bit binary via Docker (`--dry-run`)
+- Phase 6b tasks (T057-T063) require Docker to be available; if Docker is unavailable locally, runtime validation MUST be deferred to CI/CD
+- The Fluent Bit validation command is: `docker run --rm -v <config>:/fluent-bit/etc/fluent-bit.conf:ro fluent/fluent-bit:latest /fluent-bit/bin/fluent-bit -c /fluent-bit/etc/fluent-bit.conf --dry-run`

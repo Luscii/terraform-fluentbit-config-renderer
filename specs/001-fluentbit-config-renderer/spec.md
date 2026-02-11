@@ -185,6 +185,14 @@ asserting each section renders correctly and independently.
   `extra_properties` map(string) MUST be available on every
   section variable for plugin-specific settings not covered by
   typed attributes.
+- **FR-011**: Rendered configuration outputs (both classic and YAML)
+  MUST be validated against the Fluent Bit binary's built-in
+  validation mode to confirm syntactic correctness. Validation MUST
+  run via Docker (`fluent/fluent-bit:latest --dry-run`) and SHOULD
+  be integrated into the Terraform test suite where feasible. Where
+  test integration is not practical, it MUST be integrated into the
+  CI/CD pipeline as a mandatory gate. An invalid rendered
+  configuration MUST NOT be considered a passing build.
 
 ### Key Entities
 
@@ -205,9 +213,10 @@ asserting each section renders correctly and independently.
   format**. Classic remains the dominant format in production
   deployments; YAML is the future direction (Fluent Bit v3.2+).
 - Property value validation (e.g., checking that a plugin name is
-  valid) is NOT in scope. The module is a renderer, not a
-  validator. Users are responsible for providing correct Fluent Bit
-  property values.
+  valid) is NOT in scope for the Terraform module itself. The module
+  is a renderer, not a validator. However, rendered output MUST be
+  validated against the Fluent Bit binary via Docker to confirm
+  syntactic correctness (see FR-011).
 - The `@INCLUDE` directive is modeled as a top-level property, not
   as a separate section type.
 - The `[CUSTOM]` section type is explicitly out of scope for the
@@ -231,3 +240,6 @@ asserting each section renders correctly and independently.
 - **SC-004**: The module correctly handles configurations with 10+
   sections of mixed types without rendering errors or ordering
   issues.
+- **SC-005**: Both classic and YAML rendered outputs pass the Fluent
+  Bit binary's built-in configuration validation (`--dry-run`) via
+  Docker, confirming syntactic correctness beyond static analysis.
