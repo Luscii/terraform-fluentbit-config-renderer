@@ -84,3 +84,9 @@ See `.specify/memory/constitution.md` for full details. Three principles govern 
 ## Language
 
 All code, comments, documentation, and commit messages MUST be in English.
+
+## Active Technologies
+- HCL (Terraform >= 1.3), pure rendering module, no external dependencies (001-fluentbit-config-renderer)
+
+## Recent Changes
+- 001-fluentbit-config-renderer: Added HCL (Terraform >= 1.3) pure rendering module
