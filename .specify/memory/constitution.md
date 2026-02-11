@@ -1,12 +1,14 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.0.1 -> 1.1.0 (minor)
+Version change: 1.1.0 -> 1.2.0 (minor)
 
 Added sections:
-  - Core Principles: Added Principle IV (Examples). Modules MUST
-    include working examples in examples/ directory. Examples are
-    the last implementation step before documentation and polish.
+  - Core Principles: Added Principle V (Self-Documenting Variables).
+    Module variables MUST use typed objects with named attributes
+    instead of freeform structures like list(list(string)). Variable
+    descriptions and type constraints guide consumers (human or AI)
+    toward correct usage without consulting external docs.
 
 Modified sections: None
 Removed sections: None
@@ -14,11 +16,15 @@ Removed sections: None
 Templates requiring updates:
   - .specify/templates/plan-template.md ........... OK (no changes needed)
   - .specify/templates/spec-template.md ........... OK (no changes needed)
-  - .specify/templates/tasks-template.md .......... OK (examples already in Polish phase)
+  - .specify/templates/tasks-template.md .......... OK (no changes needed)
   - .specify/templates/checklist-template.md ...... OK (no changes needed)
   - .specify/templates/agent-file-template.md ..... OK (no changes needed)
 
-Follow-up TODOs: None
+Follow-up TODOs:
+  - Spec, plan, contracts, and tasks must be updated to reflect
+    the new variable structure before implementation continues.
+    The current list(list(string)) properties type violates this
+    principle and must be redesigned.
 ==================
 -->
 
@@ -101,6 +107,39 @@ the module. Examples bridge the gap between variable definitions
 and real-world usage patterns, reducing onboarding time and
 support burden.
 
+### V. Self-Documenting Variables
+
+Module variables MUST be designed so that the type signature and
+description alone provide sufficient guidance for a consumer
+(human or AI) to use the module correctly without consulting
+external documentation.
+
+- Variable types MUST use **named object attributes** instead of
+  freeform structures. For example, prefer
+  `object({ name = string, match = optional(string) })` over
+  `list(list(string))`.
+- Each variable MUST include a `description` that explains its
+  purpose, valid values, and relationship to the domain (e.g.,
+  which Fluent Bit plugin properties it controls).
+- Optional attributes MUST use Terraform's `optional()` type
+  modifier with sensible defaults where applicable, so consumers
+  see which fields are required vs. optional at the type level.
+- Enum-like constraints (e.g., plugin names, log levels) SHOULD
+  be enforced via `validation` blocks that list allowed values,
+  providing immediate feedback on misconfiguration.
+- When a domain has a fixed set of known properties per plugin or
+  section type, the variable type MUST enumerate those properties
+  as named attributes rather than accepting arbitrary key-value
+  pairs.
+
+**Rationale**: Freeform structures like `list(list(string))` offer
+no guidance on valid keys, required fields, or value formats.
+Strongly-typed variables with named attributes turn the Terraform
+type system into living documentation — IDE autocompletion,
+`terraform plan` error messages, and AI code assistants all
+benefit from explicit type contracts. This dramatically reduces
+misconfiguration and support burden.
+
 ## Technology Constraints
 
 - **Language**: HCL (Terraform >= 1.3)
@@ -137,4 +176,4 @@ support burden.
 - All code reviews and PR approvals MUST verify compliance with
   the principles defined in this constitution.
 
-**Version**: 1.1.0 | **Ratified**: 2026-02-11 | **Last Amended**: 2026-02-11
+**Version**: 1.2.0 | **Ratified**: 2026-02-11 | **Last Amended**: 2026-02-11
