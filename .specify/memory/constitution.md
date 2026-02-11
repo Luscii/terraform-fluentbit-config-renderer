@@ -1,16 +1,18 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.1.0 -> 1.2.0 (minor)
+Version change: 1.2.0 -> 1.3.0 (minor)
 
 Added sections:
-  - Core Principles: Added Principle V (Self-Documenting Variables).
-    Module variables MUST use typed objects with named attributes
-    instead of freeform structures like list(list(string)). Variable
-    descriptions and type constraints guide consumers (human or AI)
-    toward correct usage without consulting external docs.
+  - Core Principles: Added Principle VI (Runtime Configuration
+    Validation). Rendered configuration outputs MUST be validated
+    against the Fluent Bit binary via Docker to confirm syntactic
+    correctness beyond what static analysis provides.
 
-Modified sections: None
+Modified sections:
+  - Development Workflow: Added step 5a for runtime validation
+    between implementation and pre-commit.
+
 Removed sections: None
 
 Templates requiring updates:
@@ -21,10 +23,12 @@ Templates requiring updates:
   - .specify/templates/agent-file-template.md ..... OK (no changes needed)
 
 Follow-up TODOs:
-  - Spec, plan, contracts, and tasks must be updated to reflect
-    the new variable structure before implementation continues.
-    The current list(list(string)) properties type violates this
-    principle and must be redesigned.
+  - Spec, plan, and tasks must be updated to include runtime
+    validation tasks. A new phase or tasks within the validation
+    phase should cover Docker-based config validation.
+  - Investigate feasibility of running Docker validation within
+    Terraform test suites (terraform_data + local-exec) vs.
+    CI/CD pipeline integration.
 ==================
 -->
 
@@ -140,6 +144,45 @@ type system into living documentation — IDE autocompletion,
 benefit from explicit type contracts. This dramatically reduces
 misconfiguration and support burden.
 
+### VI. Runtime Configuration Validation
+
+Rendered configuration outputs MUST be validated against the
+Fluent Bit binary to confirm syntactic correctness beyond what
+Terraform's static validation provides.
+
+- The Fluent Bit binary's built-in validation mode MUST be used
+  to check rendered configurations for syntax errors. The
+  validation command is:
+  ```
+  docker run --rm \
+    -v /path/to/config:/fluent-bit/etc/fluent-bit.conf:ro \
+    fluent/fluent-bit:latest \
+    /fluent-bit/bin/fluent-bit \
+      -c /fluent-bit/etc/fluent-bit.conf \
+      --dry-run
+  ```
+- Validation MUST run via Docker to ensure a consistent,
+  reproducible environment independent of local tooling.
+- This validation SHOULD be integrated into Terraform test suites
+  where technically feasible (e.g., via `terraform_data` with a
+  `local-exec` provisioner that writes the rendered config to a
+  temp file and runs the Docker validation command). Where test
+  integration is not practical, it MUST be integrated into the
+  CI/CD pipeline as a mandatory gate.
+- Validation failures MUST block merges — an invalid rendered
+  configuration MUST NOT be considered a passing build.
+- Both classic (INI-style) and YAML rendered outputs MUST be
+  validated independently, as each format has distinct parsing
+  rules in the Fluent Bit binary.
+
+**Rationale**: Static rendering (template expansion, yamlencode)
+can produce output that looks syntactically correct but is
+rejected by the Fluent Bit parser. Only the Fluent Bit binary
+itself can authoritatively confirm a configuration is valid.
+Automated runtime validation prevents configuration errors from
+reaching production and provides a tighter feedback loop than
+manual testing.
+
 ## Technology Constraints
 
 - **Language**: HCL (Terraform >= 1.3)
@@ -152,6 +195,8 @@ misconfiguration and support burden.
 - **Documentation**: terraform-docs for automated README generation.
 - **Commit Convention**: Conventional Commits specification for all
   PR titles and commit messages.
+- **Runtime Validation**: Docker with `fluent/fluent-bit:latest`
+  image for configuration syntax validation.
 
 ## Development Workflow
 
@@ -160,8 +205,10 @@ misconfiguration and support burden.
 3. **Confirm tests fail** (Red phase).
 4. **Implement** the minimum code to make tests pass (Green phase).
 5. **Refactor** while keeping tests green (Refactor phase).
-6. **Run pre-commit hooks** to validate and format (Principle III).
-7. **Commit** using Conventional Commits format.
+6. **Validate rendered output** against Fluent Bit binary via Docker
+   (Principle VI gate).
+7. **Run pre-commit hooks** to validate and format (Principle III).
+8. **Commit** using Conventional Commits format.
 
 ## Governance
 
@@ -176,4 +223,4 @@ misconfiguration and support burden.
 - All code reviews and PR approvals MUST verify compliance with
   the principles defined in this constitution.
 
-**Version**: 1.2.0 | **Ratified**: 2026-02-11 | **Last Amended**: 2026-02-11
+**Version**: 1.3.0 | **Ratified**: 2026-02-11 | **Last Amended**: 2026-02-11
