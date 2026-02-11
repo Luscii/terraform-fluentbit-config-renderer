@@ -76,6 +76,7 @@ See `.specify/memory/constitution.md` for full details. Three principles govern 
 
 - `.github/instructions/*.instructions.md` — Detailed coding standards (auto-applied by file pattern)
 - `.github/agents/*.md` — Specialized AI agent definitions for the TDD workflow
+- `.github/skills/**/SKILL.md` - A library of reference materials you look up for specific information
 - `.specify/memory/constitution.md` — Project constitution with non-negotiable principles
 - `.pre-commit-config.yaml` — All validation hooks
 - `.checkov-config.yml` — Security scan configuration (skips: `CKV_TF_1`, `CKV_TF_2`, `CKV_AWS_260`, `CKV2_GHA_1`)
