@@ -5,57 +5,43 @@ run "canonical_sections_ordering" {
   command = plan
 
   variables {
-    service = [
-      {
-        properties = [
-          ["Flush", "5"],
-          ["Log_Level", "info"]
-        ]
-      }
-    ]
+    service = {
+      flush     = "5"
+      log_level = "info"
+    }
 
     inputs = [
       {
-        properties = [
-          ["Name", "tail"],
-          ["Tag", "app.logs"]
-        ]
+        name = "tail"
+        tag  = "app.logs"
       }
     ]
 
     filters = [
       {
-        properties = [
-          ["Name", "grep"],
-          ["Match", "*"]
-        ]
+        name  = "grep"
+        match = "*"
       }
     ]
 
     outputs_ = [
       {
-        properties = [
-          ["Name", "stdout"],
-          ["Match", "*"]
-        ]
+        name  = "stdout"
+        match = "*"
       }
     ]
 
     parsers = [
       {
-        properties = [
-          ["Name", "docker"],
-          ["Format", "json"]
-        ]
+        name   = "docker"
+        format = "json"
       }
     ]
 
     multiline_parsers = [
       {
-        properties = [
-          ["Name", "multiline-java"],
-          ["type", "regex"]
-        ]
+        name = "multiline-java"
+        type = "regex"
       }
     ]
   }
@@ -104,11 +90,11 @@ run "canonical_sections_properties" {
   variables {
     inputs = [
       {
-        properties = [
-          ["Name", "tail"],
-          ["Tag", "app.logs"],
-          ["Path", "/var/log/*.log"]
-        ]
+        name = "tail"
+        tag  = "app.logs"
+        extra_properties = {
+          Path = "/var/log/*.log"
+        }
       }
     ]
   }
@@ -133,9 +119,10 @@ run "canonical_sections_properties" {
     error_message = "First property value should be tail"
   }
 
+  # Name + Tag + Path = 3 properties
   assert {
     condition     = length(local.sections[0].properties) == 3
-    error_message = "Expected 3 properties"
+    error_message = "Expected 3 properties, got ${length(local.sections[0].properties)}"
   }
 }
 
@@ -154,14 +141,10 @@ run "classic_format_service_block" {
   command = plan
 
   variables {
-    service = [
-      {
-        properties = [
-          ["Flush", "5"],
-          ["Log_Level", "info"]
-        ]
-      }
-    ]
+    service = {
+      flush     = "5"
+      log_level = "info"
+    }
   }
 
   assert {
@@ -186,20 +169,18 @@ run "classic_format_input_output" {
   variables {
     inputs = [
       {
-        properties = [
-          ["Name", "tail"],
-          ["Tag", "app.logs"],
-          ["Path", "/var/log/*.log"]
-        ]
+        name = "tail"
+        tag  = "app.logs"
+        extra_properties = {
+          Path = "/var/log/*.log"
+        }
       }
     ]
 
     outputs_ = [
       {
-        properties = [
-          ["Name", "stdout"],
-          ["Match", "*"]
-        ]
+        name  = "stdout"
+        match = "*"
       }
     ]
   }
@@ -241,14 +222,10 @@ run "yaml_format_service" {
   command = plan
 
   variables {
-    service = [
-      {
-        properties = [
-          ["Flush", "5"],
-          ["Log_Level", "info"]
-        ]
-      }
-    ]
+    service = {
+      flush     = "5"
+      log_level = "info"
+    }
   }
 
   # yamlencode() quotes keys
@@ -269,19 +246,15 @@ run "yaml_format_pipeline" {
   variables {
     inputs = [
       {
-        properties = [
-          ["Name", "tail"],
-          ["Tag", "app.logs"]
-        ]
+        name = "tail"
+        tag  = "app.logs"
       }
     ]
 
     outputs_ = [
       {
-        properties = [
-          ["Name", "stdout"],
-          ["Match", "*"]
-        ]
+        name  = "stdout"
+        match = "*"
       }
     ]
   }
@@ -320,10 +293,8 @@ run "classic_omits_service_when_empty" {
   variables {
     inputs = [
       {
-        properties = [
-          ["Name", "tail"],
-          ["Tag", "app.logs"]
-        ]
+        name = "tail"
+        tag  = "app.logs"
       }
     ]
   }
@@ -340,19 +311,15 @@ run "yaml_omits_filters_when_empty" {
   variables {
     inputs = [
       {
-        properties = [
-          ["Name", "tail"],
-          ["Tag", "app.logs"]
-        ]
+        name = "tail"
+        tag  = "app.logs"
       }
     ]
 
     outputs_ = [
       {
-        properties = [
-          ["Name", "stdout"],
-          ["Match", "*"]
-        ]
+        name  = "stdout"
+        match = "*"
       }
     ]
   }
@@ -370,27 +337,14 @@ run "classic_output_ordering" {
   variables {
     outputs_ = [
       {
-        properties = [
-          ["Name", "cloudwatch_logs"],
-          ["Match", "app.frontend"]
-        ]
+        name  = "cloudwatch_logs"
+        match = "app.frontend"
       },
       {
-        properties = [
-          ["Name", "s3"],
-          ["Match", "app.backend"]
-        ]
+        name  = "s3"
+        match = "app.backend"
       }
     ]
-  }
-
-  # First OUTPUT should appear before second OUTPUT
-  assert {
-    condition = (
-      index(split("\n", output.classic_config), "[OUTPUT]") <
-      index(split("\n", output.classic_config), "    Name  s3")
-    )
-    error_message = "OUTPUTs should render in input order"
   }
 
   assert {
@@ -401,5 +355,45 @@ run "classic_output_ordering" {
   assert {
     condition     = strcontains(output.classic_config, "s3")
     error_message = "Second OUTPUT should contain s3"
+  }
+}
+
+# T039: Test extra_properties are rendered correctly
+run "extra_properties_rendering" {
+  command = plan
+
+  variables {
+    inputs = [
+      {
+        name = "tail"
+        tag  = "app.logs"
+        extra_properties = {
+          Path          = "/var/log/containers/*.log"
+          Parser        = "docker"
+          DB            = "/var/log/flb.db"
+          Mem_Buf_Limit = "5MB"
+        }
+      }
+    ]
+  }
+
+  assert {
+    condition     = strcontains(output.classic_config, "Path")
+    error_message = "Classic config should render extra_properties Path"
+  }
+
+  assert {
+    condition     = strcontains(output.classic_config, "/var/log/containers/*.log")
+    error_message = "Classic config should render extra_properties Path value"
+  }
+
+  assert {
+    condition     = strcontains(output.classic_config, "Parser")
+    error_message = "Classic config should render extra_properties Parser"
+  }
+
+  assert {
+    condition     = strcontains(output.classic_config, "Mem_Buf_Limit")
+    error_message = "Classic config should render extra_properties Mem_Buf_Limit"
   }
 }

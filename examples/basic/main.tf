@@ -3,20 +3,18 @@ module "example" {
 
   inputs = [
     {
-      properties = [
-        ["Name", "tail"],
-        ["Tag", "app.logs"],
-        ["Path", "/var/log/*.log"]
-      ]
+      name = "tail"
+      tag  = "app.logs"
+      extra_properties = {
+        Path = "/var/log/*.log"
+      }
     }
   ]
 
   outputs_ = [
     {
-      properties = [
-        ["Name", "stdout"],
-        ["Match", "*"]
-      ]
+      name  = "stdout"
+      match = "*"
     }
   ]
 }
