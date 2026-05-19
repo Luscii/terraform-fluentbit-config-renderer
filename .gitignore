@@ -33,6 +33,10 @@ override.tf.json
 .terraformrc
 terraform.rc
 
+# Dependency lock file — only meaningful in root modules. This is a child
+# module; consumers regenerate their own lock. Don't track here.
+**/.terraform.lock.hcl
+
 # Ignore external modules directory for checkov
 .external_modules/
 
