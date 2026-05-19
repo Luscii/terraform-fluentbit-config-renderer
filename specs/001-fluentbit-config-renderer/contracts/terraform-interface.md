@@ -1,16 +1,25 @@
+# Terraform Interface Contract
+
+## Input Variables
+
+### service (optional)
+
+Global Fluent Bit engine settings. At most one entry.
+
+```hcl
 variable "service" {
-  type = object({
-    flush            = optional(string)
-    grace            = optional(number)
-    log_level        = optional(string, "info")
-    log_file         = optional(string)
-    http_server      = optional(string)
-    http_listen      = optional(string)
-    http_port        = optional(number)
-    parsers_file     = optional(string)
-    storage_path     = optional(string)
+  type = optional(object({
+    flush        = optional(string, "1")
+    grace        = optional(number, 5)
+    log_level    = optional(string, "info")
+    log_file     = optional(string)
+    http_server  = optional(string)
+    http_listen  = optional(string, "0.0.0.0")
+    http_port    = optional(number, 2020)
+    parsers_file = optional(string)
+    storage_path = optional(string)
     extra_properties = optional(map(string), {})
-  })
+  }))
   default     = null
   description = <<-EOT
     Fluent Bit SERVICE section. Controls global engine behavior.
@@ -27,7 +36,11 @@ variable "service" {
     error_message = "log_level must be one of: off, error, warn, info, debug, trace."
   }
 }
+```
 
+### inputs (optional)
+
+```hcl
 variable "inputs" {
   type = list(object({
     name             = string
@@ -48,7 +61,11 @@ variable "inputs" {
     settings (e.g., Path for tail, Port for forward).
   EOT
 }
+```
 
+### filters (optional)
+
+```hcl
 variable "filters" {
   type = list(object({
     name             = string
@@ -67,7 +84,14 @@ variable "filters" {
     plugin-specific settings.
   EOT
 }
+```
 
+### outputs_ (optional)
+
+Note: Named `outputs_` with trailing underscore to avoid collision
+with Terraform reserved word `outputs`.
+
+```hcl
 variable "outputs_" {
   type = list(object({
     name             = string
@@ -88,17 +112,21 @@ variable "outputs_" {
     plugin-specific settings (e.g., region, log_group_name).
   EOT
 }
+```
 
+### parsers (optional)
+
+```hcl
 variable "parsers" {
   type = list(object({
-    name             = string
-    format           = string
-    regex            = optional(string)
-    time_key         = optional(string)
-    time_format      = optional(string)
-    time_keep        = optional(bool)
-    time_offset      = optional(string)
-    types            = optional(string)
+    name        = string
+    format      = string
+    regex       = optional(string)
+    time_key    = optional(string)
+    time_format = optional(string)
+    time_keep   = optional(bool)
+    time_offset = optional(string)
+    types       = optional(string)
     extra_properties = optional(map(string), {})
   }))
   default     = []
@@ -118,7 +146,11 @@ variable "parsers" {
     error_message = "Parser format must be one of: json, regex, ltsv, logfmt."
   }
 }
+```
 
+### multiline_parsers (optional)
+
+```hcl
 variable "multiline_parsers" {
   type = list(object({
     name          = string
@@ -151,3 +183,24 @@ variable "multiline_parsers" {
     error_message = "Multiline parser type must be one of: regex, endswith, equal, eq."
   }
 }
+```
+
+## Output Values
+
+### classic_config
+
+```hcl
+output "classic_config" {
+  value       = local.classic_config
+  description = "Rendered Fluent Bit configuration in classic INI-style format."
+}
+```
+
+### yaml_config
+
+```hcl
+output "yaml_config" {
+  value       = local.yaml_config
+  description = "Rendered Fluent Bit configuration in YAML format."
+}
+```
