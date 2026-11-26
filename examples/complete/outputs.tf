@@ -1,14 +1,14 @@
-output "label_context" {
-  value       = module.example.label_context
-  description = "Label context from the module"
+output "classic_config" {
+  value       = module.example.classic_config
+  description = "Rendered classic config (pipeline sections)"
 }
 
-output "label_id" {
-  value       = module.example.label_context.id
-  description = "Generated label ID"
+output "classic_parsers_config" {
+  value       = module.example.classic_parsers_config
+  description = "Rendered classic parsers config (PARSER/MULTILINE_PARSER sections)"
 }
 
-output "label_tags" {
-  value       = module.example.label_context.tags
-  description = "Generated tags"
+output "yaml_config" {
+  value       = module.example.yaml_config
+  description = "Rendered YAML config (all sections)"
 }

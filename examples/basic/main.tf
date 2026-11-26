@@ -1,16 +1,20 @@
-module "label" {
-  source  = "cloudposse/label/null"
-  version = "0.25.0"
-
-  namespace   = "example"
-  environment = "dev"
-  name        = "basic"
-}
-
 module "example" {
   source = "../../"
 
-  name = module.label.name
+  inputs = [
+    {
+      name = "tail"
+      tag  = "app.logs"
+      extra_properties = {
+        Path = "/var/log/*.log"
+      }
+    }
+  ]
 
-  context = module.label.context
+  outputs_ = [
+    {
+      name  = "stdout"
+      match = "*"
+    }
+  ]
 }

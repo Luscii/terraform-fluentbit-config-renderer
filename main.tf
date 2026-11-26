@@ -1,7 +1,2 @@
-module "label" {
-  source  = "cloudposse/label/null"
-  version = "0.25.0"
-
-  context = var.context
-  name    = var.name
-}
+# Fluent Bit Configuration Renderer
+# All logic is in locals.tf; all variables in variables.tf; all outputs in outputs.tf.
